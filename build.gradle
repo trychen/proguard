@@ -5,7 +5,7 @@ plugins {
 }
 
 allprojects {
-    group = 'com.guardsquare'
+    group = 'com.trychen'
     version = proguardVersion
     repositories {
         mavenLocal()
@@ -20,15 +20,6 @@ task buildDocumentation(type: Exec) {
     args '-c', "docker run --volume $rootDir/docs:/docs --rm squidfunk/mkdocs-material:5.2.2 build"
 }
 
-nexusPublishing {
-    repositories {
-        sonatype {
-            username = findProperty('PROGUARD_STAGING_USERNAME')
-            password = findProperty('PROGUARD_STAGING_PASSWORD')
-        }
-    }
-}
-
 // Add Maven repositories
 allprojects { Project project ->
     afterEvaluate {
@@ -37,11 +28,11 @@ allprojects { Project project ->
                 publishing {
                     repositories {
                         maven {
-                            name = 'Github'
-                            url = uri('https://maven.pkg.github.com/guardsquare/proguard')
+                            name = 'clay-maven'
+                            url = uri('https://maven.mineclay.com/repository/zhuapublic-release/')
                             credentials {
-                                username = project.findProperty('PROGUARD_GITHUB_USERNAME')
-                                password = project.findProperty('PROGUARD_GITHUB_TOKEN')
+                                username = "$clayUsername"
+                                password = "$clayPassword"
                             }
                         }
                     }
