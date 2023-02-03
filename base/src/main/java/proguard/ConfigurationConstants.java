@@ -113,6 +113,8 @@ public class ConfigurationConstants
     public static final String FORCE_PROCESSING_OPTION                           = "-forceprocessing";
 
     public static final String KEEP_KOTLIN_METADATA                              = "-keepkotlinmetadata";
+    public static final String DONT_PROCESS_KOTLIN_METADATA                      = "-dontprocesskotlinmetadata";
+    public static final String OPTIMIZE_AGGRESSIVELY                             = "-optimizeaggressively";
 
     public static final String ANY_FILE_KEYWORD            = "**";
 

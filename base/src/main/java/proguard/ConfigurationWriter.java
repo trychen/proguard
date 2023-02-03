@@ -144,6 +144,7 @@ public class ConfigurationWriter implements AutoCloseable
         writeOption(ConfigurationConstants.ADAPT_RESOURCE_FILE_NAMES_OPTION,                 configuration.adaptResourceFileNames);
         writeOption(ConfigurationConstants.ADAPT_RESOURCE_FILE_CONTENTS_OPTION,              configuration.adaptResourceFileContents);
         writeOption(ConfigurationConstants.KEEP_KOTLIN_METADATA,                             configuration.keepKotlinMetadata);
+        writeOption(ConfigurationConstants.DONT_PROCESS_KOTLIN_METADATA,                     configuration.dontProcessKotlinMetadata);
 
         writeOption(ConfigurationConstants.DONT_PREVERIFY_OPTION,     !configuration.preverify);
         writeOption(ConfigurationConstants.MICRO_EDITION_OPTION,      configuration.microEdition);
@@ -162,7 +163,8 @@ public class ConfigurationWriter implements AutoCloseable
         writeOption(ConfigurationConstants.DUMP_OPTION,                        configuration.dump);
         writeOption(ConfigurationConstants.ADD_CONFIGURATION_DEBUGGING_OPTION, configuration.addConfigurationDebugging);
 
-        writeOption(ConfigurationConstants.PRINT_SEEDS_OPTION, configuration.printSeeds);
+        writeOption(ConfigurationConstants.PRINT_SEEDS_OPTION,                 configuration.printSeeds);
+        writeOption(ConfigurationConstants.OPTIMIZE_AGGRESSIVELY,              !configuration.optimizeConservatively);
         writer.println();
 
         // Write the "why are you keeping" options.

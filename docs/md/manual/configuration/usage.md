@@ -1,5 +1,8 @@
 This page lists all available options for ProGuard, grouped logically.
 
+!!! android R8
+    R8, the default Android shrinker, is compatible with ProGuard keep rules.
+
 ## Input/Output Options {: #iooptions}
 
 `@`{: #at} [*filename*](#filename)
@@ -114,6 +117,12 @@ This page lists all available options for ProGuard, grouped logically.
   specified input, output, and configuration files or directories.
 
 ## Keep Options {: #keepoptions}
+
+!!! tip "ProGuard Playground"
+    The [**ProGuard Playground**](https://playground.proguard.com) is a useful tool to help you further tweak the keep rules. 
+
+    <iframe frameborder="0" width="100%" height="200px" style="border-radius: 0.25rem; box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);" src="https://playground.proguard.com/p/FT5qr8?embed"></iframe>
+
 
 `-keep`{: #keep} \[[,*modifier*](#keepoptionmodifiers),...\] [*class\_specification*](#classspecification)
 : Specifies classes and class members (fields and methods) to be preserved
@@ -324,6 +333,17 @@ This page lists all available options for ProGuard, grouped logically.
         more than 256 *Miranda* methods (interface methods
         without implementations) in a class.
 
+`-optimizeaggressively`{: #optimizeaggressively}
+: Enables more aggressive assumptions during optimization. This might lead to
+  improved performance and/or reduced code size, but might result in different behavior in rare cases.
+  For example, reading from an array might cause an
+  `ArrayIndexOutOfBoundsException` to be thrown. Strictly speaking, this means
+  that such an instruction can have a side effect. If this instruction is removed
+  during optimization, the code will thus behave differently under specific
+  circumstances. By default, such instructions are always preserved. Setting this
+  option will lead to these instructions being candidates for removal during
+  optimization.
+
 ## Obfuscation Options {: #obfuscationoptions}
 
 `-dontobfuscate`{: #dontobfuscate}
@@ -505,6 +525,9 @@ This page lists all available options for ProGuard, grouped logically.
   [processing a library](examples.md#library). Some IDEs can use the
   information to assist developers who use the library, for example with tool
   tips or autocompletion. Only applicable when obfuscating.
+ 
+    When processing Kotlin metadata the Kotlin function, constructor and property setter
+    parameter names are also kept.
 
 `-renamesourcefileattribute`{: #renamesourcefileattribute} \[*string*\]
 : Specifies a constant string to be put in the `SourceFile` attributes (and
@@ -515,8 +538,9 @@ This page lists all available options for ProGuard, grouped logically.
   obfuscated stack traces](examples.md#stacktrace). Only applicable when
   obfuscating.
 
-`-keepkotlinmetadata`{: #keepkotlinmetadata}
-: Specifies to process `kotlin.Metadata` annotations if present.
+`-keepkotlinmetadata`{: #keepkotlinmetadata} {: .deprecated}
+: ** Deprecated: use `-keep class kotlin.Metadata` instead. **
+  Specifies to process `kotlin.Metadata` annotations if present.
   Currently only shrinking and obfuscation of its content is supported.
   Classes containing such annotations should be excuded from optimization
   if this option is enabled.
@@ -967,7 +991,7 @@ irrelevant in actual configuration files.
 
     | Wildcard | Meaning
     |-------|-----------------------------------------------------------------------------------------
-    | `%`   | matches any primitive type ("`boolean`", "`int`", etc, but not "`void`").
+    | `%`   | matches any primitive type ("`boolean`", "`int`", etc) or "`void`" type.
     | `?`   | matches any single character in a class name.
     | `*`   | matches any part of a class name not containing the package separator.
     | `**`  | matches any part of a class name, possibly containing any number of package separators.
