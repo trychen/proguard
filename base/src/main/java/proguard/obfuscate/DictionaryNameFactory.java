@@ -23,6 +23,7 @@ package proguard.obfuscate;
 import java.io.*;
 import java.net.URL;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * This <code>NameFactory</code> generates names that are read from a
@@ -36,7 +37,7 @@ public class DictionaryNameFactory implements NameFactory
     private static final char COMMENT_CHARACTER = '#';
 
 
-    private final List        names;
+    private List        names;
     private final NameFactory nameFactory;
 
     private int index = 0;
@@ -197,10 +198,13 @@ public class DictionaryNameFactory implements NameFactory
                     if (c == -1)
                     {
                         // Just return.
-                        return;
+                        break;
                     }
                 }
             }
+
+            // Remove duplicates.
+            names = ((List<String>) names).stream().distinct().collect(Collectors.toList());
         }
         finally
         {
@@ -237,25 +241,21 @@ public class DictionaryNameFactory implements NameFactory
 
     public String nextName()
     {
-        String name;
+        StringBuilder name = new StringBuilder();
 
-        // Do we still have names?
-        if (index < names.size())
-        {
-            // Return the next name.
-            name = (String)names.get(index++);
-        }
-        else
-        {
-            // Return the next different name from the other name factory.
-            do
-            {
-                name = nameFactory.nextName();
-            }
-            while (names.contains(name));
-        }
+        int remainder; // 余数
+        int consult = index; // 商
 
-        return name;
+        do {
+            remainder = consult % names.size();
+            consult = consult / names.size();
+
+            name.append(names.get(remainder));
+        } while (consult > 0);
+
+        index++;
+
+        return name.toString();
     }
 
 
