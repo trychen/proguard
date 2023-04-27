@@ -1,3 +1,23 @@
+## Version 7.3.3
+
+### Bugfixes
+
+- Fix "NoClassDefFoundError: Failed resolution of: Lorg/apache/logging/log4j/LogManager" when using GSON optimization or `-addconfigurationdebugging`. (#326)
+
+## Version 7.3.2
+
+### Java support
+
+- Add support for Java 20. (#294)
+
+### Improved
+
+- Merge classes only when `-optimizeaggressively` is set.
+
+### Bugfixes
+
+- Fix potential `ArrayIndexOutOfBoundsException` when processing Kotlin metadata. (#297)
+
 ## Version 7.3.1
 
 ### Kotlin support
