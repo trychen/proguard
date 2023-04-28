@@ -23,6 +23,7 @@ package proguard.obfuscate;
 import java.io.*;
 import java.net.URL;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * This <code>NameFactory</code> generates names that are read from a
@@ -36,7 +37,7 @@ public class DictionaryNameFactory implements NameFactory
     private static final char COMMENT_CHARACTER = '#';
 
 
-    private final List        names;
+    private final char[]    chars;
     private final NameFactory nameFactory;
 
     private int index = 0;
@@ -68,11 +69,11 @@ public class DictionaryNameFactory implements NameFactory
                                  boolean     validJavaIdentifiers,
                                  NameFactory nameFactory) throws IOException
     {
-            this (new BufferedReader(
-                  new InputStreamReader(
-                  url.openStream(), "UTF-8")),
-                  validJavaIdentifiers,
-                  nameFactory);
+        this (new BufferedReader(
+                        new InputStreamReader(
+                                url.openStream(), "UTF-8")),
+                validJavaIdentifiers,
+                nameFactory);
     }
 
 
@@ -102,11 +103,11 @@ public class DictionaryNameFactory implements NameFactory
                                  boolean     validJavaIdentifiers,
                                  NameFactory nameFactory) throws IOException
     {
-            this (new BufferedReader(
-                  new InputStreamReader(
-                  new FileInputStream(file), "UTF-8")),
-                  validJavaIdentifiers,
-                  nameFactory);
+        this (new BufferedReader(
+                        new InputStreamReader(
+                                new FileInputStream(file), "UTF-8")),
+                validJavaIdentifiers,
+                nameFactory);
     }
 
 
@@ -138,73 +139,49 @@ public class DictionaryNameFactory implements NameFactory
                                  boolean     validJavaIdentifiers,
                                  NameFactory nameFactory) throws IOException
     {
-        this.names       = new ArrayList();
-        this.nameFactory = nameFactory;
+        Set<Character> chars = new HashSet<>();
+        this.nameFactory   = nameFactory;
 
         try
         {
-            StringBuffer buffer = new StringBuffer();
-
             while (true)
             {
                 // Read the next character.
                 int c = reader.read();
 
                 // Is it a valid identifier character?
-                if (c != -1 &&
-                    (validJavaIdentifiers ?
-                         (buffer.length() == 0 ?
-                             Character.isJavaIdentifierStart((char)c) :
-                             Character.isJavaIdentifierPart((char)c)) :
-                         (c != '\n' &&
-                          c != '\r' &&
-                          c != COMMENT_CHARACTER)))
-                {
+                if (c != -1
+                        && Character.isJavaIdentifierStart((char)c)
+                        && Character.isJavaIdentifierPart((char)c)
+                        && c != '\n'
+                        && c != '\r') {
                     // Append it to the current identifier.
-                    buffer.append((char)c);
-                }
-                else
-                {
-                    // Did we collect a new identifier?
-                    if (buffer.length() > 0)
-                    {
-                        // Add the completed name to the list of names, if it's
-                        // not in it yet.
-                        String name = buffer.toString();
-                        if (!names.contains(name))
-                        {
-                            names.add(name);
-                        }
-
-                        // Clear the buffer.
-                        buffer.setLength(0);
-                    }
-
-                    // Is this the beginning of a comment line?
-                    if (c == COMMENT_CHARACTER)
-                    {
-                        // Skip all characters till the end of the line.
-                        do
-                        {
-                            c = reader.read();
-                        }
-                        while (c != -1   &&
-                               c != '\n' &&
-                               c != '\r');
-                    }
-
+                    chars.add((char)c);
+                } else if (c == -1) {
                     // Is this the end of the file?
-                    if (c == -1)
-                    {
-                        // Just return.
-                        return;
-                    }
+                    break;
                 }
             }
         }
         finally
         {
             reader.close();
+        }
+
+        if (chars.isEmpty()) {
+            // set to a-z
+            this.chars = new char[26];
+            for (int i = 0; i < 26; i++) {
+                this.chars[i] = (char) ('a' + i);
+            }
+        } else {
+            List<Character> list = new ArrayList<>(chars);
+            Collections.shuffle(list);
+
+            this.chars = new char[list.size()];
+            for (int i = 0; i < list.size(); i++) {
+                this.chars[i] = list.get(i);
+            }
         }
     }
 
@@ -220,7 +197,7 @@ public class DictionaryNameFactory implements NameFactory
     public DictionaryNameFactory(DictionaryNameFactory dictionaryNameFactory,
                                  NameFactory           nameFactory)
     {
-        this.names       = dictionaryNameFactory.names;
+        this.chars       = dictionaryNameFactory.chars;
         this.nameFactory = nameFactory;
     }
 
@@ -237,25 +214,21 @@ public class DictionaryNameFactory implements NameFactory
 
     public String nextName()
     {
-        String name;
+        StringBuilder name = new StringBuilder();
 
-        // Do we still have names?
-        if (index < names.size())
-        {
-            // Return the next name.
-            name = (String)names.get(index++);
-        }
-        else
-        {
-            // Return the next different name from the other name factory.
-            do
-            {
-                name = nameFactory.nextName();
-            }
-            while (names.contains(name));
-        }
+        int remainder; // 余数
+        int consult = index; // 商
 
-        return name;
+        do {
+            remainder = consult % chars.length;
+            consult = consult / chars.length;
+
+            name.append(chars[remainder]);
+        } while (consult > 0);
+
+        index++;
+
+        return name.toString();
     }
 
 
@@ -264,12 +237,12 @@ public class DictionaryNameFactory implements NameFactory
         try
         {
             DictionaryNameFactory factory =
-                new DictionaryNameFactory(new File(args[0]), new SimpleNameFactory());
+                    new DictionaryNameFactory(new File(args[0]), new SimpleNameFactory());
 
             // For debugging, we're always using UTF-8 instead of the default
             // character encoding, even for writing to the standard output.
             PrintWriter out =
-                new PrintWriter(new OutputStreamWriter(System.out, "UTF-8"));
+                    new PrintWriter(new OutputStreamWriter(System.out, "UTF-8"));
 
             for (int counter = 0; counter < 50; counter++)
             {

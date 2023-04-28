@@ -172,10 +172,15 @@ implements   ClassVisitor,
                 newClassName + TypeConstants.INNER_CLASS_SEPARATOR :
                 newPackagePrefix(ClassUtil.internalPackagePrefix(programClass.getName()));
 
-            // Come up with a new class name, numeric or ordinary.
-            newClassName = newClassName != null && numericClassName ?
-                generateUniqueNumericClassName(newPackagePrefix) :
-                generateUniqueClassName(newPackagePrefix);
+            if (programClass.kotlinMetadata != null && programClass.getName().endsWith("$Companion")) {
+                // Keep name of companion object
+                newClassName = newPackagePrefix + "Companion";
+            } else {
+                // Come up with a new class name, numeric or ordinary.
+                newClassName = newClassName != null && numericClassName ?
+                        generateUniqueNumericClassName(newPackagePrefix) :
+                        generateUniqueClassName(newPackagePrefix);
+            }
 
             setNewClassName(programClass, newClassName);
         }
