@@ -5,7 +5,7 @@ plugins {
 }
 
 allprojects {
-    group = 'com.guardsquare'
+    group = 'com.trychen'
     version = proguardVersion
     repositories {
         mavenLocal()
@@ -37,11 +37,11 @@ allprojects { Project project ->
                 publishing {
                     repositories {
                         maven {
-                            name = 'Github'
-                            url = uri('https://maven.pkg.github.com/guardsquare/proguard')
+                            name = 'clay'
+                            url = uri('https://maven.mineclay.com/repository/zhuapublic-release/')
                             credentials {
-                                username = project.findProperty('PROGUARD_GITHUB_USERNAME')
-                                password = project.findProperty('PROGUARD_GITHUB_TOKEN')
+                                username = findProperty("clayUsername")
+                                password = findProperty("clayPassword")
                             }
                         }
                     }
